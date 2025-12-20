@@ -47,7 +47,7 @@ The CI/CD pipeline integrates the following tools:
 ```bash
 # Clone repository
 git clone https://github.com/edefelice/file_converter_project.git
-cd file-converter-devsecops
+cd file_converter_project
 
 # Checkout desired branch
 git checkout insecure  # For vulnerable version
@@ -91,7 +91,7 @@ GitHub Push → Jenkins
 ### 📁 Project Structure
 
 ```
-file-converter-devsecops/
+file_converter_project/
 ├── app/                    # Flask application
 │   ├── __init__.py        # Package initialization
 │   ├── app.py             # Main application
