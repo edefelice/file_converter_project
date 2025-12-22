@@ -31,8 +31,8 @@ from flask import Flask, render_template, request, send_file, jsonify, session
 from werkzeug.utils import secure_filename
 
 # Import custom modules
-from app.file_handler import FileHandler
-from app.converter import FileConverter
+from file_handler import FileHandler
+from converter import FileConverter
 
 # Flask app configuration
 app = Flask(__name__)
@@ -104,7 +104,7 @@ def session_demo():
         'session_data': dict(session)
     })
 
-@app.route('/upload', methods['POST'])
+@app.route('/upload', methods=['POST'])
 def upload_file():
     """
     File upload endpoint

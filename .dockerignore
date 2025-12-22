@@ -1,0 +1,5 @@
+# Docker ignore file (insecure branch)
+# Intentionally minimal - does not exclude sensitive files
+
+__pychache__
+*.pyc
