@@ -25,4 +25,5 @@ EXPOSE 5000
 # No HEALTHCHECK instruction
 
 # VULNERABILITY A05: Using python directly instead of production server
+# Should use gunicorn or uWSGI in production
 CMD ["python", "app/app.py"]
