@@ -58,7 +58,7 @@ git checkout main      # For secure version
 docker build -t file-converter .
 
 # Run application
-docker run -p 5000:5000 file-converter
+docker run -d -p 5001:5000 file-converter
 
 # Access application
 # http://localhost:5000
