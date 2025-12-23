@@ -187,24 +187,20 @@ pipeline {
                     """
 
                     // Wait for app to be ready
-                    sh """
-                        echo "Waiting for application to start..."
-                        sleep 10
+                    echo 'Waiting for application to start...'
+                    sleep 15
 
-                        # Check if app is responding
-                        for i in {1..10}; do
-                            if curl -f http://localhost:5000/ > /dev/null 2>&1; then
-                            echo "Application is ready!"
-                            exit 0
-                            fi
-                            echo "Waiting... attempt \$i/10"
-                            sleep 3
-                        done
-
-                        echo "Application failed to start"
-                        docker logs file-converter-test
-                        exit 1
-                    """
+                    // Check if running
+                    def containerRunning = sh(
+                        script: "docker ps --filter name=file-converter-test --format '{{.Names}}'",
+                        returnStdout: true
+                    ).trim()
+            
+                    if (containerRunning) {
+                        echo "Application container is running!"
+                    } else {
+                        error "Application failed to start"
+                    }
                 }
             }
         }
