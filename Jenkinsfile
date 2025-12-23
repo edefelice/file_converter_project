@@ -45,13 +45,13 @@ pipeline {
 
         stage('Setup Dependencies') {
             steps {
-                echo '📦 Installing required tools...'
+                echo 'Installing required tools...'
                 sh '''
                     # Update package list
-                    apt-get update -qq
+                    sudo apt-get update -qq
                     
                     # Install Python3 and pip
-                    apt-get install -y python3 python3-pip curl
+                    sudo apt-get install -y python3 python3-pip curl
                     
                     # Verify installations
                     python3 --version
