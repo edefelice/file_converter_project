@@ -110,7 +110,7 @@ pipeline {
                 script {
                     sh '''
                         docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} .
-                        docker tag ${DOCKER_IMAGE}::${DOCKER_TAG} ${DOCKER_IMAGE}:latest
+                        docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_IMAGE}:latest
                     '''
                     echo "Image built: ${DOCKER_IMAGE}:${DOCKER_TAG}"
                 }
