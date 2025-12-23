@@ -19,7 +19,7 @@ pipeline {
         SNYK_TOKEN = credentials('snyk-token')
 
         // Docker Hub credentials
-        DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')
+        //DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')
 
         // Report directories
         REPORTS_DIR = 'reports'
@@ -304,51 +304,51 @@ pipeline {
         }
     }
 
-    post {
-        always {
-            echo 'Archiving reports...'
+    //post {
+    //    always {
+    //        echo 'Archiving reports...'
 
-            // Archive all reports
-            archiveArtifacts artifacts: "${REPORTS_DIR}/*", allowEmptyArchive: true
+    //        // Archive all reports
+    //        archiveArtifacts artifacts: "${REPORTS_DIR}/*", allowEmptyArchive: true
             
-            // Publish HTML reports
-            publishHTML([
-                allowMissing: true,
-                alwaysLinkToLastBuild: true,
-                keepAll: true,
-                reportDir: "${REPORTS_DIR}",
-                reportFiles: 'bandit-report.html,zap-report.html',
-                reportName: 'Security Reports'
-            ])
-        }
+    //        // Publish HTML reports
+    //        publishHTML([
+    //            allowMissing: true,
+    //            alwaysLinkToLastBuild: true,
+    //            keepAll: true,
+    //            reportDir: "${REPORTS_DIR}",
+    //            reportFiles: 'bandit-report.html,zap-report.html',
+    //            reportName: 'Security Reports'
+    //        ])
+    //    }
 
-        success {
-            echo 'Pipeline completed successfully!'
-            script {
-                if (env.BRANCH_NAME == 'main') {
-                    echo 'Main branch: All security checks passed!'
-                } else {
-                    echo 'Insecure branch: Vulnerabilities detected (as expected for demo)'
-                }
-            }
-        }
+    //    success {
+    //        echo 'Pipeline completed successfully!'
+    //        script {
+    //            if (env.BRANCH_NAME == 'main') {
+    //                echo 'Main branch: All security checks passed!'
+    //            } else {
+    //                echo 'Insecure branch: Vulnerabilities detected (as expected for demo)'
+    //            }
+    //        }
+    //    }
 
-        unstable {
-            echo 'Pipeline completed with warnings - Security issues found'
-        }
+    //    unstable {
+    //        echo 'Pipeline completed with warnings - Security issues found'
+    //    }
         
-        failure {
-            echo 'Pipeline failed!'
-        }
+    //    failure {
+    //        echo 'Pipeline failed!'
+    //    }
 
-        cleanup {
-            echo 'Final cleanup...'
-            sh '''
-                # Ensure test container is stopped
-                docker stop file-converter-test 2>/dev/null || true
-                docker rm file-converter-test 2>/dev/null || true
-            '''
-        }
-    }
+    //    cleanup {
+    //        echo 'Final cleanup...'
+    //        sh '''
+    //            # Ensure test container is stopped
+    //            docker stop file-converter-test 2>/dev/null || true
+    //            docker rm file-converter-test 2>/dev/null || true
+    //        '''
+    //    }
+    //}
 
 }
