@@ -225,9 +225,9 @@ pipeline {
                             docker run --rm \
                                 --network jenkins \
                                 -v ${WORKSPACE}/${REPORTS_DIR}:/zap/wrk/:rw \
-                                -t owasp/zap2docker-stable \
+                                -t ghcr.io/zaproxy/zaproxy:stable \
                                 zap-baseline.py \
-                                -t http://file-converter-test:5001 \
+                                -t http://file-converter-test:5000 \
                                 -r zap-report.html \
                                 -J zap-report.json \
                                 -w zap-report.md || true
