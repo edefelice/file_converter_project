@@ -193,7 +193,7 @@ pipeline {
 
                         # Check if app is responding
                         for i in {1..10}; do
-                            if curl -f http://localhost:5001/ > /dev/null 2>&1; then
+                            if curl -f http://localhost:5000/ > /dev/null 2>&1; then
                             echo "Application is ready!"
                             exit 0
                             fi
