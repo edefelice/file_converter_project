@@ -43,24 +43,6 @@ pipeline {
             }
         }
 
-        stage('Setup Dependencies') {
-            steps {
-                echo 'Installing required tools...'
-                sh '''
-                    # Update package list
-                    sudo apt-get update -qq
-                    
-                    # Install Python3 and pip
-                    sudo apt-get install -y python3 python3-pip curl
-                    
-                    # Verify installations
-                    python3 --version
-                    pip3 --version
-                    docker --version
-                '''
-            }
-        }
-
         stage('Environment Info') {
             steps {
                 echo 'Environment Information'
@@ -69,7 +51,6 @@ pipeline {
                     echo "Build Number: ${BUILD_NUMBER}"
                     echo "Docker Tag: ${DOCKER_TAG}"
                     echo "Workspace: ${WORKSPACE}"
-                    python3 --version
                     docker --version
                 '''
             }
@@ -81,10 +62,14 @@ pipeline {
                 script {
                     try {
                         sh '''
-                            pip3 install bandit
-                            bandit -r app/ -f json -o ${REPORTS_DIR}/bandit-report.json || true
-                            bandit -r app/ -f html -o ${REPORTS_DIR}/bandit-report.html || true
-                            bandit -r app/ -f txt -o ${REPORTS_DIR}/bandit-report.txt || true
+                            # Run Bandit as Docker container
+                            docker run --rm \
+                            -v ${WORKSPACE}:/src \
+                            -v ${WORKSPACE}/${REPORTS_DIR}:/reports \
+                            python:3.11-slim \
+                            sh -c "pip install bandit && \
+                               bandit -r /src/app/ -f json -o /reports/bandit-report.json || true && \
+                               bandit -r /src/app/ -f txt -o /reports/bandit-report.txt || true"
                         '''
 
                         // Display summary
