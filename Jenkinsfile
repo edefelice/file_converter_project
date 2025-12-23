@@ -92,14 +92,13 @@ pipeline {
                             
                             // Install Snyk CLI
                             sh '''
-                                curl -Lo snyk https://static.snyk.io/cli/latest/snyk-linux
-                                chmod +x snyk
-                                sudo mv snyk /usr/local/bin/
+                                curl -Lo ./snyk https://static.snyk.io/cli/latest/snyk-linux
+                                chmod +x ./snyk
                             '''
 
                             // Verify installation
-                            sh 'snyk --version'
-                            
+                            sh './snyk --version'
+
                             // Snyk authentication
                             sh 'snyk auth $SNYK_TOKEN'
                             
