@@ -43,6 +43,24 @@ pipeline {
             }
         }
 
+        stage('Setup Dependencies') {
+            steps {
+                echo '📦 Installing required tools...'
+                sh '''
+                    # Update package list
+                    apt-get update -qq
+                    
+                    # Install Python3 and pip
+                    apt-get install -y python3 python3-pip curl
+                    
+                    # Verify installations
+                    python3 --version
+                    pip3 --version
+                    docker --version
+                '''
+            }
+        }
+
         stage('Environment Info') {
             steps {
                 echo 'Environment Information'
