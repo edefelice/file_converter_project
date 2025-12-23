@@ -187,7 +187,7 @@ pipeline {
                     """
 
                     // Wait for app to be ready
-                    sh '''
+                    sh """
                         echo "Waiting for application to start..."
                         sleep 10
 
@@ -204,7 +204,7 @@ pipeline {
                         echo "Application failed to start"
                         docker logs file-converter-test
                         exit 1
-                    '''
+                    """
                 }
             }
         }
