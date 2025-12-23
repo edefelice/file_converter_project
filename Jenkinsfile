@@ -90,35 +90,31 @@ pipeline {
                         
                         withCredentials([string(credentialsId: 'snyk-token', variable: 'SNYK_TOKEN')]) {
                             
-                            // Install Snyk CLI
-                            sh '''
-                                curl -Lo ./snyk https://static.snyk.io/cli/latest/snyk-linux
-                                chmod +x ./snyk
-                            '''
-
-                            // Verify installation
-                            sh './snyk --version'
-
-                            // Snyk authentication
-                            sh 'snyk auth $SNYK_TOKEN'
+                            // Create reports directory
+                            sh 'mkdir -p reports'
                             
-                            // Install dependencies
-                            sh 'pip install -r requirements.txt || true'
-                            
-                            // Scan
+                            // Run Snyk as Docker container
                             sh '''
-                                snyk test \
+                                docker run --rm \
+                                    -e SNYK_TOKEN=$SNYK_TOKEN \
+                                    -v ${WORKSPACE}:/project \
+                                    -v ${WORKSPACE}/reports:/reports \
+                                    snyk/snyk:python-3.11 test \
+                                    --file=/project/requirements.txt \
                                     --severity-threshold=low \
-                                    --json > reports/snyk-report.json || true
+                                    --json-file-output=/reports/snyk-report.json || true
                             '''
                             
-                            // Generate HTML report
+                            // Run again for console output
                             sh '''
-                                snyk test \
+                                docker run --rm \
+                                    -e SNYK_TOKEN=$SNYK_TOKEN \
+                                    -v ${WORKSPACE}:/project \
+                                    snyk/snyk:python-3.11 test \
+                                    --file=/project/requirements.txt \
                                     --severity-threshold=low || true
                             '''
-                        }
-                        echo 'Snyk scan completed'
+                            echo 'Snyk scan completed'
                     } catch(Exception e) {
                         echo "Snyk scan failed: ${e.message}"
                         currentBuild.result = 'UNSTABLE'
