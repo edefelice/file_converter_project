@@ -89,9 +89,9 @@ pipeline {
                                     -e SNYK_TOKEN=$SNYK_TOKEN \
                                     -v ${WORKSPACE}:/project \
                                     -w /project \
-                                    snyk/snyk:python-3.11 test \
+                                    snyk/snyk:python \
+                                    snyk test \
                                     --file=requirements.txt \
-                                    --severity-threshold=low \
                                     --json > ${WORKSPACE}/${REPORTS_DIR}/snyk-report.json || true
                             '''
                             
