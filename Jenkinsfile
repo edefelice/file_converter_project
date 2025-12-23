@@ -25,7 +25,12 @@ pipeline {
                 checkout scm
 
                 // Create reports directory
-                sh "mkdir -p ${REPORTS_DIR}"
+                sh """
+                    echo "Cleaning old reports..."
+                    rm -rf ${REPORTS_DIR}
+                    mkdir -p ${REPORTS_DIR}
+                    echo "Clean reports directory created"
+                """
             }
         }
 
