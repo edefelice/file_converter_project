@@ -1,13 +1,13 @@
 pipeline {
     agent any
 
-    parameters {
-        booleanParam {
-            name: 'PUSH_TO_DOCKERHUB',
-            defaultValue: false,
-            description: 'Push Docker image to Docker Hub (only for main branch with clean scans)'
-        }
-    }
+    //parameters {
+    //    booleanParam {
+    //        name: 'PUSH_TO_DOCKERHUB',
+    //        defaultValue: false,
+    //        description: 'Push Docker image to Docker Hub (only for main branch with clean scans)'
+    //    }
+    //}
 
     environment {
         // Project configuration
@@ -257,34 +257,34 @@ pipeline {
             }
         }
 
-        stage('Push to Docker Hub') {
-            when {
-                allOf {
-                    branch 'main'
-                    expression { return params.PUSH_TO_DOCKERHUB }
-                }
-            }
+        //stage('Push to Docker Hub') {
+        //    when {
+        //        allOf {
+        //            branch 'main'
+        //            expression { return params.PUSH_TO_DOCKERHUB }
+        //        }
+        //    }
 
-            steps {
-                echo 'Pushing Docker image to Docker Hub...'
-                script {
-                    sh '''
-                        echo ${DOCKERHUB_CREDENTIALS_PSW} | docker login -u ${DOCKERHUB_CREDENTIALS_USR} --password-stdin
+        //    steps {
+        //        echo 'Pushing Docker image to Docker Hub...'
+        //        script {
+        //            sh '''
+        //                echo ${DOCKERHUB_CREDENTIALS_PSW} | docker login -u ${DOCKERHUB_CREDENTIALS_USR} --password-stdin
 
-                        # Tag for Docker Hub
-                        docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKERHUB_CREDENTIALS_USR}/${DOCKER_IMAGE}:latest
-                        docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKERHUB_CREDENTIALS_USR}/${DOCKER_IMAGE}:${DOCKER_TAG}
+        //                # Tag for Docker Hub
+        //                docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKERHUB_CREDENTIALS_USR}/${DOCKER_IMAGE}:latest
+        //                docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKERHUB_CREDENTIALS_USR}/${DOCKER_IMAGE}:${DOCKER_TAG}
 
-                        # Push
-                        docker push ${DOCKERHUB_CREDENTIALS_USR}/${DOCKER_IMAGE}:latest
-                        docker push ${DOCKERHUB_CREDENTIALS_USR}/${DOCKER_IMAGE}:${DOCKER_TAG}
+        //                # Push
+        //                docker push ${DOCKERHUB_CREDENTIALS_USR}/${DOCKER_IMAGE}:latest
+        //                docker push ${DOCKERHUB_CREDENTIALS_USR}/${DOCKER_IMAGE}:${DOCKER_TAG}
                         
-                        docker logout
-                    '''
-                    echo "Image pushed to Docker Hub: ${env.DOCKERHUB_CREDENTIALS_USR}/${DOCKER_IMAGE}"
-                }
-            }
-        }
+        //                docker logout
+        //            '''
+        //            echo "Image pushed to Docker Hub: ${env.DOCKERHUB_CREDENTIALS_USR}/${DOCKER_IMAGE}"
+        //        }
+        //    }
+        //}
 
         stage('Cleanup') {
             steps {
