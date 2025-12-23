@@ -197,7 +197,7 @@ pipeline {
                             echo "Application is ready!"
                             exit 0
                             fi
-                            echo "Waiting... attempt $i/10"
+                            echo "Waiting... attempt \$i/10"
                             sleep 3
                         done
 
