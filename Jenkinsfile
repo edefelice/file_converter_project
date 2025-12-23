@@ -1,14 +1,6 @@
 pipeline {
     agent any
 
-    //parameters {
-    //    booleanParam {
-    //        name: 'PUSH_TO_DOCKERHUB',
-    //        defaultValue: false,
-    //        description: 'Push Docker image to Docker Hub (only for main branch with clean scans)'
-    //    }
-    //}
-
     environment {
         // Project configuration
         PROJECT_NAME = 'file_converter_project'
@@ -17,9 +9,6 @@ pipeline {
 
         // Snyk credentials
         SNYK_TOKEN = credentials('snyk-token')
-
-        // Docker Hub credentials
-        //DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')
 
         // Report directories
         REPORTS_DIR = 'reports'
@@ -91,7 +80,7 @@ pipeline {
                         withCredentials([string(credentialsId: 'snyk-token', variable: 'SNYK_TOKEN')]) {
                             
                             // Create reports directory
-                            sh 'mkdir -p reports'
+                            sh 'mkdir -p ${REPORTS_DIR}'
                             
                             // Run Snyk as Docker container
                             sh '''
@@ -284,38 +273,9 @@ pipeline {
             }
         }
 
-        //stage('Push to Docker Hub') {
-        //    when {
-        //        allOf {
-        //            branch 'main'
-        //            expression { return params.PUSH_TO_DOCKERHUB }
-        //        }
-        //    }
-
-        //    steps {
-        //        echo 'Pushing Docker image to Docker Hub...'
-        //        script {
-        //            sh '''
-        //                echo ${DOCKERHUB_CREDENTIALS_PSW} | docker login -u ${DOCKERHUB_CREDENTIALS_USR} --password-stdin
-
-        //                # Tag for Docker Hub
-        //                docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKERHUB_CREDENTIALS_USR}/${DOCKER_IMAGE}:latest
-        //                docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKERHUB_CREDENTIALS_USR}/${DOCKER_IMAGE}:${DOCKER_TAG}
-
-        //                # Push
-        //                docker push ${DOCKERHUB_CREDENTIALS_USR}/${DOCKER_IMAGE}:latest
-        //                docker push ${DOCKERHUB_CREDENTIALS_USR}/${DOCKER_IMAGE}:${DOCKER_TAG}
-                        
-        //                docker logout
-        //            '''
-        //            echo "Image pushed to Docker Hub: ${env.DOCKERHUB_CREDENTIALS_USR}/${DOCKER_IMAGE}"
-        //        }
-        //    }
-        //}
-
         stage('Cleanup') {
             steps {
-                echo '🧹 Cleaning up...'
+                echo 'Cleaning up...'
                 script {
                     sh '''
                         # Stop and remove test container
@@ -330,51 +290,51 @@ pipeline {
         }
     }
 
-    //post {
-    //    always {
-    //        echo 'Archiving reports...'
+    post {
+        always {
+            echo 'Archiving reports...'
 
-    //        // Archive all reports
-    //        archiveArtifacts artifacts: "${REPORTS_DIR}/*", allowEmptyArchive: true
+            // Archive all reports
+            archiveArtifacts artifacts: "${REPORTS_DIR}/*", allowEmptyArchive: true
             
-    //        // Publish HTML reports
-    //        publishHTML([
-    //            allowMissing: true,
-    //            alwaysLinkToLastBuild: true,
-    //            keepAll: true,
-    //            reportDir: "${REPORTS_DIR}",
-    //            reportFiles: 'bandit-report.html,zap-report.html',
-    //            reportName: 'Security Reports'
-    //        ])
-    //    }
+            // Publish HTML reports
+            publishHTML([
+                allowMissing: true,
+                alwaysLinkToLastBuild: true,
+                keepAll: true,
+                reportDir: "${REPORTS_DIR}",
+                reportFiles: 'zap-report.html',
+                reportName: 'Security Reports'
+            ])
+        }
 
-    //    success {
-    //        echo 'Pipeline completed successfully!'
-    //        script {
-    //            if (env.BRANCH_NAME == 'main') {
-    //                echo 'Main branch: All security checks passed!'
-    //            } else {
-    //                echo 'Insecure branch: Vulnerabilities detected (as expected for demo)'
-    //            }
-    //        }
-    //    }
+        success {
+            echo 'Pipeline completed successfully!'
+            script {
+                if (env.BRANCH_NAME == 'main') {
+                    echo 'Main branch: All security checks passed!'
+                } else {
+                    echo 'Insecure branch: Vulnerabilities detected (as expected for demo)'
+                }
+            }
+        }
 
-    //    unstable {
-    //        echo 'Pipeline completed with warnings - Security issues found'
-    //    }
+        unstable {
+            echo 'Pipeline completed with warnings - Security issues found'
+        }
         
-    //    failure {
-    //        echo 'Pipeline failed!'
-    //    }
+        failure {
+            echo 'Pipeline failed!'
+        }
 
-    //    cleanup {
-    //        echo 'Final cleanup...'
-    //        sh '''
-    //            # Ensure test container is stopped
-    //            docker stop file-converter-test 2>/dev/null || true
-    //            docker rm file-converter-test 2>/dev/null || true
-    //        '''
-    //    }
-    //}
+        cleanup {
+            echo 'Final cleanup...'
+            sh '''
+                # Ensure test container is stopped
+                docker stop file-converter-test 2>/dev/null || true
+                docker rm file-converter-test 2>/dev/null || true
+            '''
+        }
+    }
 
 }
