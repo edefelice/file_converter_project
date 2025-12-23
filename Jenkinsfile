@@ -87,15 +87,6 @@ pipeline {
                 echo 'Running Dependency Vulnerability Scan with Snyk...'
                 script {
                     try {
-                        // Install Snyk CLI
-                        sh '''
-                        curl -Lo snyk https://static.snyk.io/cli/latest/snyk-linux
-                        chmod +x snyk
-                        sudo mv snyk /usr/local/bin/
-                        '''
-
-                        // Verify Snyk is installed
-                        sh 'snyk --version'
                         
                         withCredentials([string(credentialsId: 'snyk-token', variable: 'SNYK_TOKEN')]) {
                             
@@ -105,6 +96,10 @@ pipeline {
                                 chmod +x snyk
                                 sudo mv snyk /usr/local/bin/
                             '''
+
+                            // Verify installation
+                            sh 'snyk --version'
+                            
                             // Snyk authentication
                             sh 'snyk auth $SNYK_TOKEN'
                             
