@@ -154,6 +154,7 @@ pipeline {
                     echo "Trivy found vulnerabilities: ${e.message}"
                     currentBuild.result = 'UNSTABLE'
                 }
+                }
             }
         }
 
