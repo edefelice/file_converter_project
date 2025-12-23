@@ -167,7 +167,9 @@ pipeline {
                 script {
 
                     // Create jenkins network in Docker-in-Docker
-                    docker network create jenkins 2>/dev/null || true
+                    sh '''
+                        docker network create jenkins 2>/dev/null || true
+                    '''
                     
                     // Stop any existing container
                     sh '''
