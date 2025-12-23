@@ -87,24 +87,38 @@ pipeline {
                 echo 'Running Dependency Vulnerability Scan with Snyk...'
                 script {
                     try {
-                        // Verifica che Snyk sia installato
-                        sh 'snyk --version || echo "Snyk not found, installing..."'
+                        // Install Snyk CLI
+                        sh '''
+                        curl -Lo snyk https://static.snyk.io/cli/latest/snyk-linux
+                        chmod +x snyk
+                        sudo mv snyk /usr/local/bin/
+                        '''
+
+                        // Verify Snyk is installed
+                        sh 'snyk --version'
                         
                         withCredentials([string(credentialsId: 'snyk-token', variable: 'SNYK_TOKEN')]) {
-                            // Autentica con Snyk
+                            
+                            // Install Snyk CLI
+                            sh '''
+                                curl -Lo snyk https://static.snyk.io/cli/latest/snyk-linux
+                                chmod +x snyk
+                                sudo mv snyk /usr/local/bin/
+                            '''
+                            // Snyk authentication
                             sh 'snyk auth $SNYK_TOKEN'
                             
-                            // Installa le dipendenze
+                            // Install dependencies
                             sh 'pip install -r requirements.txt || true'
                             
-                            // Esegui la scansione
+                            // Scan
                             sh '''
                                 snyk test \
                                     --severity-threshold=low \
                                     --json > reports/snyk-report.json || true
                             '''
                             
-                            // Genera anche report HTML (opzionale)
+                            // Generate HTML report
                             sh '''
                                 snyk test \
                                     --severity-threshold=low || true
