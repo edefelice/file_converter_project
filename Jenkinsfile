@@ -166,19 +166,19 @@ pipeline {
                 echo 'Deploying application for DAST testing...'
                 script {
                     // Stop any existing container
-                    sh """
+                    sh '''
                         docker stop file-converter-test || true
                         docker rm file-converter-test || true
-                    """
+                    '''
 
                     // Start new container
-                    sh '''
+                    sh """
                         docker run -d \
                             --name file-converter-test \
                             --network jenkins \
                             -p 5001:5000 \
                             ${DOCKER_IMAGE}:${DOCKER_TAG}
-                    '''
+                    """
 
                     // Wait for app to be ready
                     sh '''
