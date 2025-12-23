@@ -115,6 +115,7 @@ pipeline {
                                     --severity-threshold=low || true
                             '''
                             echo 'Snyk scan completed'
+                        }
                     } catch(Exception e) {
                         echo "Snyk scan failed: ${e.message}"
                         currentBuild.result = 'UNSTABLE'
