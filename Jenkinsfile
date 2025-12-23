@@ -7,9 +7,6 @@ pipeline {
         DOCKER_IMAGE = 'file-converter'
         DOCKER_TAG = "${env.BRANCH_NAME}-${env.BUILD_NUMBER}"
 
-        // Snyk credentials
-        SNYK_TOKEN = credentials('snyk-token')
-
         // Report directories
         REPORTS_DIR = 'reports'
     }
@@ -70,50 +67,6 @@ pipeline {
                 }
             }
         }
-
-        stage('Dependency Check - Snyk') {
-            steps {
-                echo 'Running Dependency Vulnerability Scan with Snyk...'
-                script {
-                    try {
-                        
-                        withCredentials([string(credentialsId: 'snyk-token', variable: 'SNYK_TOKEN')]) {
-                            
-                            // Create reports directory
-                            sh 'mkdir -p ${REPORTS_DIR}'
-                            
-                            // Run Snyk as Docker container
-                            sh '''
-                                docker run --rm \
-                                    --platform linux/amd64 \
-                                    -e SNYK_TOKEN=$SNYK_TOKEN \
-                                    -v ${WORKSPACE}:/project \
-                                    -w /project \
-                                    snyk/snyk:python \
-                                    snyk test \
-                                    --file=requirements.txt \
-                                    --json > ${WORKSPACE}/${REPORTS_DIR}/snyk-report.json || true
-                            '''
-                            
-                            // Run again for console output
-                            sh '''
-                                docker run --rm \
-                                    -e SNYK_TOKEN=$SNYK_TOKEN \
-                                    -v ${WORKSPACE}:/project \
-                                    snyk/snyk:python-3.11 test \
-                                    --file=/project/requirements.txt \
-                                    --severity-threshold=low || true
-                            '''
-                            echo 'Snyk scan completed'
-                        }
-                    } catch(Exception e) {
-                        echo "Snyk scan failed: ${e.message}"
-                        currentBuild.result = 'UNSTABLE'
-                    }
-                }
-            }
-        }
-
 
         stage('Build Docker Image') {
             steps {
@@ -260,12 +213,16 @@ pipeline {
                         ls -lh ${REPORTS_DIR}/ || echo "No reports found"
                         echo ""
 
-                        echo "Bandit (SAST):"
+                        echo "Bandit (SAST - Code Analysis):"
                         grep -A 5 "Run metrics" ${REPORTS_DIR}/bandit-report.txt || echo "No Bandit summary"
                         echo ""
 
-                        echo "Trivy (Container Security):"
+                        echo "Trivy (Container Security & Dependencies Security):"
                         grep -E "(CRITICAL|HIGH|MEDIUM)" ${REPORTS_DIR}/trivy-report.txt | head -20 || echo "No Trivy summary"
+                        echo ""
+
+                        echo "OWASP ZAP (DAST - Web Security):"
+                        echo "Check artifacts for detailed vulnerability reports"
                         echo ""
                         
                         echo "================================"
