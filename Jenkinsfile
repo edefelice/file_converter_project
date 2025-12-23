@@ -85,13 +85,14 @@ pipeline {
                             // Run Snyk as Docker container
                             sh '''
                                 docker run --rm \
+                                    --platform linux/amd64 \
                                     -e SNYK_TOKEN=$SNYK_TOKEN \
                                     -v ${WORKSPACE}:/project \
-                                    -v ${WORKSPACE}/reports:/reports \
+                                    -w /project \
                                     snyk/snyk:python-3.11 test \
-                                    --file=/project/requirements.txt \
+                                    --file=requirements.txt \
                                     --severity-threshold=low \
-                                    --json-file-output=/reports/snyk-report.json || true
+                                    --json > ${WORKSPACE}/${REPORTS_DIR}/snyk-report.json || true
                             '''
                             
                             // Run again for console output
