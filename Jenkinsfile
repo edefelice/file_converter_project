@@ -37,13 +37,13 @@ pipeline {
         stage('Environment Info') {
             steps {
                 echo 'Environment Information'
-                sh '''
-                    echo "Branch: ${BRANCH_NAME}"
-                    echo "Build Number: ${BUILD_NUMBER}"
+                sh """
+                    echo "Branch: ${env.BRANCH_NAME}"
+                    echo "Build Number: ${env.BUILD_NUMBER}"
                     echo "Docker Tag: ${DOCKER_TAG}"
-                    echo "Workspace: ${WORKSPACE}"
+                    echo "Workspace: ${env.WORKSPACE}"
                     docker --version
-                '''
+                """
             }
         }
 
@@ -111,13 +111,23 @@ pipeline {
                                 --output /reports/trivy-report.txt \
                                 ${DOCKER_IMAGE}:${DOCKER_TAG} || true
                             
+                            # HTML report
+                            docker run --rm \
+                                -v /var/run/docker.sock:/var/run/docker.sock \
+                                -v ${WORKSPACE}/${REPORTS_DIR}:/reports \
+                                aquasec/trivy:latest image \
+                                --format template \
+                                --template "@contrib/html.tpl" \
+                                --output /reports/trivy-report.html \
+                                ${DOCKER_IMAGE}:${DOCKER_TAG} || true
+                                
                             # Display summary (HIGH and CRITICAL only)
                             echo "Trivy Summary (HIGH and CRITICAL vulnerabilities):"
                             docker run --rm \
                                 -v /var/run/docker.sock:/var/run/docker.sock \
                                 -v ${WORKSPACE}/${REPORTS_DIR}:/reports \
                                 aquasec/trivy:latest image \
-                                --severity HIGH,CRITICAL\
+                                --severity HIGH,CRITICAL \
                                 ${DOCKER_IMAGE}:${DOCKER_TAG} || true
                         '''
 
@@ -205,13 +215,13 @@ pipeline {
             steps {
                 echo 'Security Scan Summary'
                 script {
-                    sh '''
+                    sh """
                         echo "================================"
                         echo "Security Scan Results Summary"
                         echo "================================"
                         echo ""
-                        echo "Branch: ${BRANCH_NAME}"
-                        echo "Build: ${BUILD_NUMBER}"
+                        echo "Branch: ${env.BRANCH_NAME}"
+                        echo "Build: ${env.BUILD_NUMBER}"
                         echo ""
 
                         echo "Reports generated:"
@@ -231,7 +241,7 @@ pipeline {
                         echo ""
                         
                         echo "================================"
-                    '''
+                    """
                 }
             }
         }
@@ -260,7 +270,18 @@ pipeline {
             // Archive all reports
             archiveArtifacts artifacts: "${REPORTS_DIR}/*", allowEmptyArchive: true
             
-            // Publish HTML reports
+            // Publish Trivy HTML report
+            publishHTML([
+            allowMissing: true,
+            alwaysLinkToLastBuild: true,
+            keepAll: true,
+            reportDir: "${REPORTS_DIR}",
+            reportFiles: 'trivy-report.html',
+            reportName: 'Trivy Container Scan',
+            reportTitles: 'Container Security Report'
+            ])
+
+            // Publish ZAP HTML reports
             publishHTML([
                 allowMissing: true,
                 alwaysLinkToLastBuild: true,
@@ -299,5 +320,4 @@ pipeline {
             '''
         }
     }
-
 }
