@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Converter - DevSecOps Project</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .warning-badge {
+            display: inline-block;
+            background: #ff4444;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 16px;
+        }
+
+        .upload-section {
+            margin: 30px 0;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        input[type="file"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px dashed #667eea;
+            border-radius: 10px;
+            background: #f8f9ff;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        input[type="file"]:hover {
+            border-color: #764ba2;
+            background: #f0f1ff;
+        }
+
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            background: white;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .result.success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .result.error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        .vulnerabilities {
+            margin-top: 30px;
+            padding: 20px;
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 10px;
+        }
+
+        .vulnerabilities h3 {
+            color: #856404;
+            margin-bottom: 15px;
+        }
+
+        .vulnerabilities ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .vulnerabilities li {
+            padding: 8px 0;
+            color: #856404;
+        }
+
+        .vulnerabilities li:before {
+            content: "⚠️ ";
+            margin-right: 8px;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #999;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <span class="warning-badge" style="background: #28a745;">✅ SECURE BRANCH</span>
+            <h1>🔄 File Converter</h1>
+            <p class="subtitle">DevSecOps Security Demo</p>
+        </div>
+
+        <div class="upload-section">
+            <form id="uploadForm" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="fileInput">Select File:</label>
+                    <input type="file" id="fileInput" name="file" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="formatSelect">Convert to:</label>
+                    <select id="formatSelect" name="format">
+                        <option value="pdf">PDF</option>
+                        <option value="txt">TXT</option>
+                        <option value="png">PNG</option>
+                        <option value="jpg">JPG</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    📤 Upload & Convert
+                </button>
+            </form>
+
+            <div id="result" class="result"></div>
+        </div>
+
+        <div class="vulnerabilities" style="background: #d4edda; border-color: #28a745;">
+            <h3 style="color: #155724;">✅ Security Fixes Applied</h3>
+            <ul style="color: #155724;">
+                <li><strong>A01:</strong> Path Traversal - Fixed with path validation</li>
+                <li><strong>A03:</strong> Command Injection - Fixed with subprocess lists</li>
+                <li><strong>A04:</strong> File validation - Added size limits and checks</li>
+                <li><strong>A05:</strong> Debug disabled - Secure configuration</li>
+                <li><strong>A06:</strong> Dependencies updated - No known CVEs</li>
+                <li><strong>A08:</strong> Pickle removed - Using JSON instead</li>
+            </ul>
+        </div>
+
+        <div class="footer">
+            <p>🎓 Educational Project - System Security Course</p>
+            <p>👤 Author: <strong>Ernesto De Felice</strong></p>
+            <p>Branch: <strong>main</strong> | Secure version</p>
+        </div>
+    </div>
+
+    <script>
+        // Handle form submission
+        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData();
+            const fileInput = document.getElementById('fileInput');
+            const formatSelect = document.getElementById('formatSelect');
+            const resultDiv = document.getElementById('result');
+            
+            if (!fileInput.files[0]) {
+                showResult('Please select a file', 'error');
+                return;
+            }
+            
+            formData.append('file', fileInput.files[0]);
+            
+            try {
+                // Upload file
+                resultDiv.textContent = '⏳ Uploading...';
+                resultDiv.style.display = 'block';
+                resultDiv.className = 'result';
+                
+                const uploadResponse = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const uploadData = await uploadResponse.json();
+                
+                if (!uploadResponse.ok) {
+                    showResult('Upload failed: ' + uploadData.error, 'error');
+                    return;
+                }
+                
+                // Convert file
+                resultDiv.textContent = '⏳ Converting...';
+                
+                const convertResponse = await fetch('/convert', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        filename: uploadData.filename,
+                        format: formatSelect.value
+                    })
+                });
+                
+                const convertData = await convertResponse.json();
+                
+                if (convertResponse.ok) {
+                    showResult(
+                        `✅ Success! File converted to ${formatSelect.value.toUpperCase()}\n` +
+                        `Output: ${convertData.output_file}`,
+                        'success'
+                    );
+                } else {
+                    showResult('Conversion failed: ' + convertData.error, 'error');
+                }
+                
+            } catch (error) {
+                showResult('Error: ' + error.message, 'error');
+            }
+        });
+        
+        function showResult(message, type) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.textContent = message;
+            resultDiv.className = `result ${type}`;
+            resultDiv.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
+
+<!---
+
+What this HTML does:
+
+1. style:
+- Gradient background purple/blue
+- Card with shadow
+- Form
+- Responsive
+
+2. Functions:
+- Upload file with drag & drop
+- Select conversion format
+- Feedback (loading, success, error)
+- Fix list
+
+3. JavaScript:
+- Handles upload with Fetch API
+- Calls first `/upload`, then `/convert`
+- Shows real time results
+
+--->

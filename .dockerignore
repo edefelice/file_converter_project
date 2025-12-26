@@ -1,0 +1,43 @@
+# Docker ignore file (secure branch)
+
+# Git
+.git
+.gitignore
+
+# Python
+__pychache__
+*.pyc
+*.pyo
+*.egg-info
+.pytest_cache
+.coverage
+htmlcov
+
+# Virtual environments
+venv
+env
+.env
+.env.local
+
+# IDE
+.vscode
+.vscodium
+.idea
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Documentation
+docs
+*.md
+
+# Tests
+tests
+
+# Reports
+reports
+
+# Uploads (runtime only)
+uploads
+converted
