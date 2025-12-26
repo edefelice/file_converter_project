@@ -167,7 +167,7 @@ def download_file():
     if not is_safe_path(app.config['CONVERTED_FOLDER'], safe_filename):
         return jsonify({'error': 'Access denied'}), 403
 
-    filepath = os.path.join(app.config['CONVERTED_FOLDER'], safe_filename)
+    filepath = os.path.abspath(os.path.join(app.config['CONVERTED_FOLDER'], safe_filename))
 
     # FIX: Check if file exists
     if not os.path.exists(filepath):
