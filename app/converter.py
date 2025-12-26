@@ -67,7 +67,7 @@ class FileConverter:
 
         # COMMAND INJECTION VULNERABILITY!
         # FIX: Safe command execution
-        success = self._execute_conversion(input_path, output_path, output_format)
+        success = self._execute_conversion(input_path, output_path, output_format, input_ext)
 
         if success:
             return {
@@ -94,7 +94,7 @@ class FileConverter:
         base_name = os.path.splitext(input_filename)[0]
         return f"{base_name}.{output_format}"
     
-    def _execute_conversion(self, input_path, output_path, output_format):
+    def _execute_conversion(self, input_path, output_path, output_format, input_ext):
         """
         Execute the actual conversion command - SECURE VERSION
 
@@ -108,6 +108,7 @@ class FileConverter:
             input_path: Full path to input file
             output_path: Full path to output file
             output_format: Target format
+            input_ext: File extension of input file
         
         Returns:
             Boolean indicating success
