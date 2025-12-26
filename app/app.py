@@ -31,8 +31,8 @@ from flask import Flask, render_template, request, send_file, jsonify, session
 from werkzeug.utils import secure_filename
 
 # Import custom modules
-from file_handler import FileHandler
-from converter import FileConverter
+from app.file_handler import FileHandler
+from app.converter import FileConverter
 
 # Flask app configuration
 app = Flask(__name__)
