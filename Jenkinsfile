@@ -278,7 +278,7 @@ pipeline {
             reportDir: "${REPORTS_DIR}",
             reportFiles: 'trivy-report.html',
             reportName: 'Trivy Container Scan',
-            reportTitles: 'Container Security Report'
+            reportTitles: 'Trivy Report'
             ])
 
             // Publish ZAP HTML reports
@@ -288,7 +288,7 @@ pipeline {
                 keepAll: true,
                 reportDir: "${REPORTS_DIR}",
                 reportFiles: 'zap-report.html',
-                reportName: 'Security Reports'
+                reportName: 'ZAP Report'
             ])
         }
 
