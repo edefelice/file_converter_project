@@ -289,9 +289,13 @@
                 if (convertResponse.ok) {
                     showResult(
                         `✅ Success! File converted to ${formatSelect.value.toUpperCase()}\n` +
-                        `Output: ${convertData.output_file}`,
+                        `Output: ${convertData.output_file}\n` +
+                        `⏳ Downloading...`,
                         'success'
                     );
+
+                    // Auto-download the converted file
+                    window.location.href = `/download?filename=${convertData.output_file}`;
                 } else {
                     showResult('Conversion failed: ' + convertData.error, 'error');
                 }

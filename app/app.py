@@ -209,6 +209,7 @@ def convert_file():
     try:
         result = converter.convert(filename, output_format,
         app.config['UPLOAD_FOLDER'], app.config['CONVERTED_FOLDER'])
+        result['download_url'] = f"/download?filename={result['output_file']}"
         return jsonify(result), 200
     except ValueError as e:
         # Acceptable because we control the error messages.
