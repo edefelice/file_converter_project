@@ -4,10 +4,12 @@ Handles file format conversions
 
 Branch: insecure
 Contains COMMAND INJECTION vulnerability (A03)
+
+WARNING: This code contains intentional vulnerabilities for educational purposes.
+Do NOT use in production!
 """
 
 import os
-import subprocess
 from PIL import Image
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
@@ -17,8 +19,8 @@ class FileConverter:
     """
     Handles file conversions
 
-    CRITICAL VULNERABILITY: Command Injection (A03)
-    User input is passed directly to shell commands without sanitization
+    VULNERABILITY A03: Command Injection
+    Uses os.system() with unsanitized user input for some conversions
     """
 
     def __init__(self):
@@ -32,22 +34,24 @@ class FileConverter:
         Convert file to specified format
 
         VULNERABILITY A03: COMMAND INJECTION
-        Filename and format are used in shell commands without sanitization!
+        - No input sanitization on filename
+        - No validation on output_format
+        - Filename passed directly to shell commands
 
         Example attack:
             filename = "file.txt; rm -rf /"
-            This would execute: convert file.txt output.pdf; rm -rf /
+            Results in: os.system("cp uploads/test.txt; rm -rf / converted/test.txt")
         
         Args:
-            filename: Input filename
-            output_format: Desired output format
+            filename: Input filename (UNSANITIZED!)
+            output_format: Desired output format (UNVALIDATED!)
             input_folder: Folder containing input file
             output_folder: Folder for output file
         
         Returns:
             Dictionary with result information
         """
-        # NO INPUT SANITIZATION!
+        # VULNERABILITY: NO INPUT SANITIZATION!
         input_path = os.path.join(input_folder, filename)
         output_filename = self._generate_output_filename(filename, output_format)
         output_path = os.path.join(output_folder, output_filename)
@@ -59,8 +63,7 @@ class FileConverter:
         # Get input file extension
         input_ext = os.path.splitext(filename)[1].lower()
         
-        # COMMAND INJECTION VULNERABILITY!
-        # Using os.system() with unsanitized user input
+        # Execute conversion (some methods are vulnerable to command injection!)
         success = self._execute_conversion(input_path, output_path, output_format, input_ext)
 
         if success:
@@ -92,42 +95,46 @@ class FileConverter:
         """
         Execute the actual conversion command
 
-        CRITICAL VULNERABILITY: Command Injection
+        VULNERABILITY A03: Command Injection
+        Some conversions use os.system() with user-controlled input:
+        - Image to Image: os.system("cp ...") - VULNERABLE!
+        - Text to Text: os.system("cat ... > ...") - VULNERABLE!
+        - PDF to PDF: os.system("cp ...") - VULNERABLE!
+        
+        Safe conversions (use Python libraries):
+        - Image to PDF: Pillow + ReportLab
+        - Text to PDF: ReportLab
 
         Args:
             input_path: Full path to input file
             output_path: Full path to output file
             output_format: Target format
+            input_ext: Input file extension
         
         Returns:
             Boolean indicating success
         """
         try:
-            # COMMAND INJECTION HERE!
-            # User-controlled input is directly interpolated into shell command
-            # image to pdf
+            # Image to PDF - Safe (uses Pillow + ReportLab)
             if input_ext in self.image_extensions and output_format == 'pdf':
                 return self._image_to_pdf(input_path, output_path)
-            # text to pdf
+            # Text to PDF - Safe (uses ReportLab)
             elif input_ext in self.text_extensions and output_format == 'pdf':
                 return self._text_to_pdf(input_path, output_path)
-            # image to image - VULNERABLE! uses os.system() which executes commands in a shell
+            # Image to image - VULNERABLE! uses os.system() with user input which executes commands in a shell
             elif input_ext in self.image_extensions and output_format in ['png', 'jpg']:
-                # COMMAND INJECTION VULNERABILITY!
                 command = f"cp {input_path} {output_path}"
-                result = os.system(command)
+                result = os.system(command) # COMMAND INJECTION!
                 return result == 0
-            # Text to Text - VULNERABLE! Uses os.system()
+            # Text to Text - VULNERABLE! Uses os.system() with user input
             elif input_ext in self.text_extensions and output_format == 'txt':
-                # COMMAND INJECTION VULNERABILITY!
                 command = f"cat {input_path} > {output_path}"
-                result = os.system(command)
+                result = os.system(command) # COMMAND INJECTION!
                 return result == 0
-            # PDF to PDF - VULNERABLE! Uses os.system()
+            # PDF to PDF - VULNERABLE! Uses os.system() with user input
             elif input_ext == '.pdf' and output_format == 'pdf':
-                # COMMAND INJECTION VULNERABILITY!
                 command = f"cp {input_path} {output_path}"
-                result = os.system(command)
+                result = os.system(command) # COMMAND INJECTION
                 return result == 0
             else:
                 print(f"Unsupported conversion: {input_ext} to {output_format}")

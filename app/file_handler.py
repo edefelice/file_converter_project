@@ -4,17 +4,18 @@ Handles file operations (upload, download, validation)
 
 Branch: insecure
 Contains intentional vulnerabilities for educational purposes.
+
+WARNING: Do NOT use in production!
 """
 
 import os
-import shutil
 
 class FileHandler:
     """
-    Handles file operations for the application
+    Handles file operations for the application - INSECURE VERSION
 
     VULNERABILITIES:
-    - A01: Broken Access Control - No path validation
+    - A01: Broken Access Control - No path validation (Path Traversal)
     - A04: Insecure Design - Insufficient validation
     """
 
@@ -36,15 +37,18 @@ class FileHandler:
         VULNERABILITY A01: Broken Access Control (Path Traversal)
         No validation of filename - allows directory traversal attacks
 
+        Attack example:
+            filename = "../../../etc/passwd"
+            Returns: "uploads/../../../etc/passwd" -> "/etc/passwd"
+
         Args:
             filename: Name of the file
             folder: 'upload' or 'converted'
         
         Returns:
-            Full file path
+            Full file path (potentially outside intended directory!)
         """
-        # NO PATH SANITIZATION!
-        # Attacker can use ../../../etc/passwd
+        # VULNERABILITY: NO PATH SANITIZATION!
         if folder == 'converted':
             return os.path.join(self.converted_folder, filename)
         else:
@@ -68,10 +72,15 @@ class FileHandler:
         """
         Delete a file
 
-        VULNERABILITY A01: Can delete any file on the system
+        VULNERABILITY A01: Broken Access Control
+        Can delete ANY file on the system using path traversal
+
+        Attack example:
+            filename = "../../../important_file.txt"
+            Deletes file outside intended directory!
 
         Args:
-            filename: Name of the file to delete
+            filename: Name of the file to delete (UNSANITIZED!)
             folder: 'upload' or 'converted'
         
         Returns:
