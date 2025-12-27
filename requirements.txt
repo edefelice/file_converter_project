@@ -5,4 +5,4 @@ Jinja2==2.11.2
 MarkupSafe==1.1.1
 click==7.1.2
 itsdangerous==1.1.0
-reportlab==4.2.5
+reportlab==3.6.0
