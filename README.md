@@ -11,7 +11,7 @@ A secure file converter application demonstrating DevSecOps best practices.
 
 | Vulnerability | OWASP | Fix |
 |--------------|-------|-----|
-| Command Injection | A03 | subprocess.run() with argument lists |
+| Command Injection | A03 | Pillow + Python I/0 instead of os.system() |
 | Path Traversal | A01 | secure_filename() + path validation |
 | Insecure Deserialization | A08 | JSON instead of pickle |
 | Security Misconfiguration | A05 | DEBUG=False, random SECRET_KEY |
@@ -42,5 +42,5 @@ The Jenkins pipeline includes:
 
 ## Author:
 
-Ernesto De Felice
+**Ernesto De Felice**
 Project for System Security exam - DevSecOps demonstration
