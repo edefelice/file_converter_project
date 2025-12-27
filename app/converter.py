@@ -7,8 +7,6 @@ Contains COMMAND INJECTION vulnerability (A03) FIXED
 """
 
 import os
-import subprocess
-import shlex
 from PIL import Image
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
@@ -18,8 +16,9 @@ class FileConverter:
     """
     Handles file conversions - SECURE VERSION
 
-    CRITICAL VULNERABILITY: Command Injection (A03)
-    FIX: Using subprocess with argument lists instead of shell=True
+    FIX A03: Command Injection
+    - Removed os.system() calls that were vulnerable to injection
+    - All conversions now use safe Python methods (Pillow, file I/O)
     """
 
     def __init__(self):
@@ -30,10 +29,11 @@ class FileConverter:
     
     def convert(self, filename, output_format, input_folder, output_folder):
         """
-        Convert file to specified format
+        Convert file to specified format - SECURE VERSION
 
-        VULNERABILITY A03: COMMAND INJECTION
-        FIX: Input validation and safe subprocess usage
+        FIX A03: COMMAND INJECTION
+        - Added input validation (whitelist, path traversal check)
+        - uses os.path.basename() for safe filename handling
         
         Args:
             filename: Input filename
@@ -65,8 +65,7 @@ class FileConverter:
         # Get input file extension
         input_ext = os.path.splitext(safe_filename)[1].lower()
 
-        # COMMAND INJECTION VULNERABILITY!
-        # FIX: Safe command execution
+        # FIX Command Injection: All conversions use safe Python methods (no shell commands)
         success = self._execute_conversion(input_path, output_path, output_format, input_ext)
 
         if success:
@@ -98,11 +97,15 @@ class FileConverter:
         """
         Execute the actual conversion command - SECURE VERSION
 
-        CRITICAL VULNERABILITY: Command Injection
-        FIX: Using subprocess.run() with argument lists
-        - No shell=True
-        - Arguments passed as list (not string)
-        - Cannot inject commands
+        FIX A03 - Command Injection
+        INSECURE version used os.system() for image-to-image, text-to-text, pdf-to-pdf:
+            command = f"cp {input_path} {output_path}"  # VULNERABLE!
+            os.system(command)
+        
+        SECURE version uses:
+        - Pillow for image conversions (_image_to_image)
+        - Python file I/O for copies (_copy_file)
+        - No shell commands = No injection possible
 
         Args:
             input_path: Full path to input file
@@ -114,22 +117,21 @@ class FileConverter:
             Boolean indicating success
         """
         try:
-            # COMMAND INJECTION HERE!
-            # FIX: Using subprocess.run with list arguments (NO SHELL)
+            # FIX Command Injection
 
-            # Image to PDF
+            # Image to PDF (uses Pillow + ReportLab)
             if input_ext in self.image_extensions and output_format == 'pdf':
                 return self._image_to_pdf(input_path, output_path)
-            # Text to PDF
+            # Text to PDF (uses ReportLab)
             elif input_ext in self.text_extensions and output_format == 'pdf':
                 return self._text_to_pdf(input_path, output_path)
-            # Image to Image (format conversion)
+            # Image to Image (format conversion) - FIX: uses Pillow instead of os.system("cp ...")
             elif input_ext in self.image_extensions and output_format in ['png', 'jpg']:
                 return self._image_to_image(input_path, output_path, output_format)
-            # Text to Text (copy)
+            # Text to Text - FIX: uses Python I/O instead of os.system("cat ... > ...")
             elif input_ext in self.text_extensions and output_format == 'txt':
                 return self._copy_file(input_path, output_path)
-            # PDF to PDF (copy)
+            # PDF to PDF - FIX: uses Python I/O instead of os.system("cp ...")
             elif input_ext == '.pdf' and output_format == 'pdf':
                 return self._copy_file(input_path, output_path)
             # Unsupported conversion
@@ -137,12 +139,12 @@ class FileConverter:
                 print(f"Unsupported conversion: {input_ext} to {output_format}")
                 return False
             
-            return result.returncode == 0
         except Exception as e:
             print(f"Conversion error: {e}")
             return False
 
     def _image_to_pdf(self, input_path, output_path):
+        """Convert image to PDF using Pillow and ReportLab"""
         try:
             # Open image with Pillow
             img = Image.open(input_path)
@@ -232,7 +234,11 @@ class FileConverter:
             return False
     
     def _image_to_image(self, input_path, output_path, output_format):
-        """Convert image to another image format using Pillow"""
+        """
+        Convert image to another image format using Pillow
+        
+        FIX A03: Replaces vulnerable os.system("cp ...") from insecure version
+        """
         try:
             img = Image.open(input_path)
             
@@ -252,7 +258,11 @@ class FileConverter:
             return False
     
     def _copy_file(self, input_path, output_path):
-        """Copy file (for same-format conversions)"""
+        """
+        Copy file (for same-format conversions) using Python I/O
+        
+        FIX A03: Replaces vulnerable os.system("cp/cat ...") from insecure version
+        """
         try:
             with open(input_path, 'rb') as src:
                 with open(output_path, 'wb') as dst:

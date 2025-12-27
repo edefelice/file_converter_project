@@ -16,16 +16,15 @@ SECURE VERSION - All vulnerabilites fixed
 
 # 6. ROUTES
 #    - @app.route('/')                      # Homepage
-#    - @app.route('/session_demo')          # Secret key demo
 #    - @app.route('/upload', POST)          # Upload file
-#    - @app.route('/download')              # Download (fix path traversal)
-#    - @app.route('/convert', POST)         # Convert (fix command injection)
+#    - @app.route('/download')              # Download (FIX path traversal)
+#    - @app.route('/convert', POST)         # Convert (FIX command injection)
 #    - @app.route('/process_data', POST)    # FIX Pickle (deserialization)
 
 # 7. if __name__ == '__main__':
 
 import os
-import json # instead of pickle, removes insecure deserialization
+import json # FIX A08: Using JSON instead of pickle (removes insecure deserialization)
 import secrets
 from flask import Flask, render_template, request, send_file, jsonify, session
 from werkzeug.utils import secure_filename
@@ -37,10 +36,10 @@ from app.converter import FileConverter
 # Flask app configuration
 app = Flask(__name__)
 
-# FIX A05 vulnerability: Security Misconfiguration
-app.config['DEBUG'] = False # FIX: Disabled
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', secrets.token_hex(32)) # FIXED Weak hardcoded secret key -> random secret
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024 # FIX: No upload limit (A04 vulnerability: insecure design) -> 16MB limit
+# FIX A05: Security Misconfiguration
+app.config['DEBUG'] = False # FIX: Disabled debug mode
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', secrets.token_hex(32)) # FIX: Random secret key instead of hardcoded
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024 # FIX A04: 16MB limit instead of unlimited
 
 # Folder configuration
 UPLOAD_FOLDER = 'uploads'
@@ -66,9 +65,9 @@ def allowed_file(filename):
     """
     Check if file extension is allowed
 
-    VULNERABILITY A04: Insecure Design - Insufficient Validation
-    Only checks file extension, doesn't verify actual file content.
-    FIX: Additional validation
+    FIX A04: Insecure Design - Enhanced Validation
+    - Checks for empty/invalid filenames
+    - Rejects double extensions (e.g. malware.exe.pdf)
     """
     if not filename or '.' not in filename:
         return False
@@ -84,6 +83,13 @@ def allowed_file(filename):
 def is_safe_path(basedir, path):
     """
     FIX A01: Validate path to prevent directory traversal
+
+    Args:
+        basedir: The base directory that paths should be within
+        path: The path to validate
+    
+    Returns:
+        Boolean indicating if path is safe
     """
     # Resolve the absolute path
     abs_path = os.path.abspath(os.path.join(basedir, path))
@@ -109,12 +115,10 @@ def upload_file():
     """
     File upload endpoint - SECURE VERSION
 
-    VULNERABILITY A04: Insecure Design
-    - No file size validation
-    - Insufficient file type validation
-    - No rate limiting
-
-    FIX: Proper validation
+    FIX A04: Insecure Design
+    - File size validation
+    - Proper file type validation
+    - Secure filename sanitization
     """
     if 'file' not in request.files:
         return jsonify({'error': 'No file provided'}), 400
@@ -124,7 +128,7 @@ def upload_file():
     if file.filename == '':
         return jsonify({'error': 'Empty filename'}), 400
 
-    # FIXED VULNERABILITY A04: Weak validation
+    # FIXED A04: Validate file extension
     if file and allowed_file(file.filename):
         # FIX: Using secure_filename to sanitize
         filename = secure_filename(file.filename)
@@ -137,7 +141,7 @@ def upload_file():
         # FIX: MAX_CONTENT_LENGTH handles size limit automatically.
         file.save(filepath)
 
-        # FIX: does not return filepath 
+        # FIX A05: Does not expose internal filepath 
         return jsonify({
             'message': 'File uploaded successfully',
             'filename': filename
@@ -150,7 +154,9 @@ def download_file():
     """
     Download file endpoint - SECURE VERSION
 
-    FIX VULNERABILITY A01: Broken Access Control (Path Traversal)
+    FIX A01: Broken Access Control (Path Traversal)
+    - Sanitizes filename
+    - Validates if path is within allowed directory
     """
     filename = request.args.get('filename', '')
 
@@ -184,9 +190,9 @@ def convert_file():
     """
     File converstion endpoint - SECURE VERSION
 
-    FIX VULNERABILITY A03: Injection (Command Injection)
-
-    Uses secure converter module
+    FIX A03: Injection (Command Injection)
+    - Uses secure converter module with native Python libraries
+    - Input validation and sanitization
     """
     data = request.get_json()
 
@@ -199,8 +205,7 @@ def convert_file():
     if not filename:
         return jsonify({'error': 'No filename provided'}), 400
     
-    # COMMAND INJECTION!
-    # FIX: Sanitize filename before processing
+    # FIX Command Injection: Sanitize filename before processing
     safe_filename = secure_filename(filename)
 
     if not safe_filename:
@@ -225,12 +230,12 @@ def process_data():
     """
     Data processing endpoint - SECURE VERSION
 
-    FIX VULNERABILITY A08: Software and Data Integrity Failures (Insecure Deserialization)
-    Instead of insecure pickle deserialization uses JSON
+    FIX A08: Software and Data Integrity Failures (Insecure Deserialization)
+    - Uses JSON instead of pickle
+    - Safe deserialization
     """
     try:
-        # FIX INSECURE DESERIALIZATION!
-        # using json
+        # FIX INSECURE DESERIALIZATION: using JSON instead of pickle
         user_data = request.get_json()
         
         if not user_data:
@@ -245,5 +250,5 @@ def process_data():
 
 # Run the application
 if __name__ == '__main__':
-    # FIX VULNERABILITY A05: Secure run configuration
+    # FIX A05: Secure run configuration
     app.run(host='127.0.0.1', port=5000, debug=False)

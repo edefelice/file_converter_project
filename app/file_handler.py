@@ -13,7 +13,7 @@ class FileHandler:
     """
     Handles file operations for the application - SECURE VERSION
 
-    VULNERABILITIES:
+    VULNERABILITIES FIXED:
     - A01: Broken Access Control - No path validation
     - A04: Insecure Design - Insufficient validation
 
@@ -68,8 +68,8 @@ class FileHandler:
         Returns:
             Full file path or None if invalid
         """
-        # NO PATH SANITIZATION!
-        # FIX: Sanitize filename
+
+        # FIXED No Path Sanitization: Sanitize filename
         safe_filename = secure_filename(filename)
         if not safe_filename:
             return None
@@ -103,8 +103,7 @@ class FileHandler:
         """
         Delete a file - SECURE VERSION
 
-        VULNERABILITY A01: Can delete any file on the system
-        FIX: Validate path before deletion
+        FIX A01: Path Validation prevents arbitrary file deletion
 
         Args:
             filename: Name of the file to delete

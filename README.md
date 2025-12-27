@@ -30,7 +30,7 @@ python app/app.py
 ## Running with Docker
 ```bash
 docker build -t file-converter .
-docker run -p 5000:5000 file-converter
+docker run -p 5001:5000 file-converter
 ```
 
 ## DevSecOps Pipeline
