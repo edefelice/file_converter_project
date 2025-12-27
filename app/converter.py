@@ -61,7 +61,7 @@ class FileConverter:
         
         # COMMAND INJECTION VULNERABILITY!
         # Using os.system() with unsanitized user input
-        success = self._execute_conversion(input_path, output_path, output_format)
+        success = self._execute_conversion(input_path, output_path, output_format, input_ext)
 
         if success:
             return {
@@ -88,7 +88,7 @@ class FileConverter:
         base_name = os.path.splitext(input_filename)[0]
         return f"{base_name}.{output_format}"
     
-    def _execute_conversion(self, input_path, output_path, output_format):
+    def _execute_conversion(self, input_path, output_path, output_format, input_ext):
         """
         Execute the actual conversion command
 
@@ -209,7 +209,7 @@ class FileConverter:
         except Exception as e:
             print(f"Text to PDF error: {e}")
             return False
-            
+
     def is_format_supported(self, format_name):
         """
         Check if format is supported

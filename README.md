@@ -30,7 +30,6 @@ The CI/CD pipeline integrates the following tools:
 | Tool | Type | Purpose |
 |------|------|---------|
 | **Bandit** | SAST | Static analysis of Python code |
-| **Snyk** | SCA | Vulnerability scanning in dependencies |
 | **Trivy** | Container Security | Docker image scanning |
 | **OWASP ZAP** | DAST | Dynamic testing on running application |
 
