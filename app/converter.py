@@ -125,7 +125,7 @@ class FileConverter:
                 return self._text_to_pdf(input_path, output_path)
             # Image to Image (format conversion)
             elif input_ext in self.image_extensions and output_format in ['png', 'jpg']:
-                return self._image_to_image(input_path, output_path)
+                return self._image_to_image(input_path, output_path, output_format)
             # Text to Text (copy)
             elif input_ext in self.text_extensions and output_format == 'txt':
                 return self._copy_file(input_path, output_path)
