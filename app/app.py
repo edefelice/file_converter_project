@@ -184,6 +184,7 @@ def convert_file():
     try:
         result = converter.convert(filename, output_format,
         app.config['UPLOAD_FOLDER'], app.config['CONVERTED_FOLDER'])
+        result['download_url'] = f"/download?filename={result['output_file']}"
         return jsonify(result), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
