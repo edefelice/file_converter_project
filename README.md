@@ -40,6 +40,7 @@ The Jenkins pipeline includes:
 - **Trivy**: Container scanning
 - **OWASP ZAP**: DAST
 
-## Author: Ernesto De Felice
+## Author:
 
+Ernesto De Felice
 Project for System Security exam - DevSecOps demonstration
