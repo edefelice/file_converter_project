@@ -40,7 +40,6 @@ The CI/CD pipeline integrates the following tools:
 - Docker
 - Jenkins with Docker-in-Docker
 - Python 3.9+
-- Snyk account (for dependency scanning)
 
 #### Local Installation
 
@@ -73,8 +72,6 @@ GitHub Push → Jenkins
            ↓
     [SAST - Bandit]
            ↓
-    [Dependency Check - Snyk]
-           ↓
     [Build Docker Image]
            ↓
     [Container Scan - Trivy]
@@ -84,8 +81,6 @@ GitHub Push → Jenkins
     [DAST - OWASP ZAP]
            ↓
     [Generate Reports]
-           ↓
-    [Push to Docker Hub] ← Main branch only
 ```
 
 ### 📁 Project Structure
@@ -123,22 +118,13 @@ This project demonstrates:
 
 #### Branch `insecure`:
 - Bandit detects multiple vulnerabilities (severity: HIGH)
-- Snyk identifies outdated and vulnerable dependencies
 - Trivy finds container configuration issues
 - OWASP ZAP discovers runtime vulnerabilities
 
 #### Branch `main`:
 - Clean scans or minimal vulnerabilities
 - Best practices implemented
-- Docker image published to Docker Hub
 - Application ready for deployment
-
-### 📝 Documentation
-
-- [UML Class Diagram](docs/class-diagram.png)
-- [Pipeline Sequence Diagram](docs/sequence-diagram.png)
-- [Deployment Diagram](docs/deployment-diagram.png)
-- [Vulnerability Reports](reports/)
 
 ### 🎓 Academic Context
 
