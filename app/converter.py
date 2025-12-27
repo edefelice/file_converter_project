@@ -8,6 +8,10 @@ Contains COMMAND INJECTION vulnerability (A03)
 
 import os
 import subprocess
+from PIL import Image
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+from reportlab.lib.units import inch
 
 class FileConverter:
     """
@@ -20,6 +24,8 @@ class FileConverter:
     def __init__(self):
         """ Initialize the converter"""
         self.supported_formats = ['pdf', 'txt', 'png', 'jpg']
+        self.image_extensions = {'.png', '.jpg', '.jpeg', '.gif', '.bmp'}
+        self.text_extensions = {'.txt', '.md', '.csv'}
     
     def convert(self, filename, output_format, input_folder, output_folder):
         """
@@ -49,6 +55,9 @@ class FileConverter:
         # Check if input file exists
         if not os.path.exists(input_path):
             raise FileNotFoundError(f"Input file not found: {filename}")
+        
+        # Get input file extension
+        input_ext = os.path.splitext(filename)[1].lower()
         
         # COMMAND INJECTION VULNERABILITY!
         # Using os.system() with unsanitized user input
@@ -96,27 +105,111 @@ class FileConverter:
         try:
             # COMMAND INJECTION HERE!
             # User-controlled input is directly interpolated into shell command
-            if output_format == 'pdf':
-                # Simulated conversion command
-                # Vulnerable to injection: filename could be "file.txt; malicious_command"
-                command = f"echo 'Converting {input_path} to PDF' > {output_path}"
-            elif output_format == 'txt':
+            # image to pdf
+            if input_ext in self.image_extensions and output_format == 'pdf':
+                return self._image_to_pdf(input_path, output_path)
+            # text to pdf
+            elif input_ext in self.text_extensions and output_format == 'pdf':
+                return self._text_to_pdf(input_path, output_path)
+            # image to image - VULNERABLE! uses os.system() which executes commands in a shell
+            elif input_ext in self.image_extensions and output_format in ['png', 'jpg']:
+                # COMMAND INJECTION VULNERABILITY!
+                command = f"cp {input_path} {output_path}"
+                result = os.system(command)
+                return result == 0
+            # Text to Text - VULNERABLE! Uses os.system()
+            elif input_ext in self.text_extensions and output_format == 'txt':
+                # COMMAND INJECTION VULNERABILITY!
                 command = f"cat {input_path} > {output_path}"
-            elif output_format in ['png', 'jpg']:
+                result = os.system(command)
+                return result == 0
+            # PDF to PDF - VULNERABLE! Uses os.system()
+            elif input_ext == '.pdf' and output_format == 'pdf':
+                # COMMAND INJECTION VULNERABILITY!
                 command = f"cp {input_path} {output_path}"
+                result = os.system(command)
+                return result == 0
             else:
-                # Default fallback
-                command = f"cp {input_path} {output_path}"
-            
-            # DANGEROUS: Executing shell command with user input!
-            # Using os.system() which executes commands in a shell
-            result = os.system(command)
+                print(f"Unsupported conversion: {input_ext} to {output_format}")
+                return False
 
-            return result == 0
         except Exception as e:
             print(f"Conversion error: {e}")
             return False
     
+    def _image_to_pdf(self, input_path, output_path):
+        """Convert image to PDF using Pillow and ReportLab"""
+        try:
+            img = Image.open(input_path)
+            
+            if img.mode in ('RGBA', 'LA', 'P'):
+                img = img.convert('RGB')
+            
+            img_width, img_height = img.size
+            
+            c = canvas.Canvas(output_path, pagesize=letter)
+            page_width, page_height = letter
+            
+            margin = 0.5 * inch
+            available_width = page_width - 2 * margin
+            available_height = page_height - 2 * margin
+            
+            scale = min(available_width / img_width, available_height / img_height)
+            new_width = img_width * scale
+            new_height = img_height * scale
+            
+            x = (page_width - new_width) / 2
+            y = (page_height - new_height) / 2
+            
+            temp_path = input_path + '.temp.jpg'
+            img.save(temp_path, 'JPEG', quality=95)
+            
+            c.drawImage(temp_path, x, y, new_width, new_height)
+            c.save()
+            
+            os.remove(temp_path)
+            
+            return True
+        except Exception as e:
+            print(f"Image to PDF error: {e}")
+            return False
+    
+    def _text_to_pdf(self, input_path, output_path):
+        """Convert text file to PDF using ReportLab"""
+        try:
+            with open(input_path, 'r', encoding='utf-8', errors='ignore') as f:
+                text_content = f.readlines()
+            
+            c = canvas.Canvas(output_path, pagesize=letter)
+            page_width, page_height = letter
+            
+            c.setFont("Helvetica", 10)
+            
+            margin = 0.75 * inch
+            y_position = page_height - margin
+            line_height = 14
+            
+            for line in text_content:
+                line = line.rstrip('\n\r')
+                
+                if y_position < margin:
+                    c.showPage()
+                    c.setFont("Helvetica", 10)
+                    y_position = page_height - margin
+                
+                max_chars = 90
+                if len(line) > max_chars:
+                    line = line[:max_chars] + "..."
+                
+                c.drawString(margin, y_position, line)
+                y_position -= line_height
+            
+            c.save()
+            return True
+        except Exception as e:
+            print(f"Text to PDF error: {e}")
+            return False
+            
     def is_format_supported(self, format_name):
         """
         Check if format is supported
