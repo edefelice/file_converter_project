@@ -157,7 +157,7 @@ def download_file():
 
     # No check if file exists or if path is safe
     try:
-        return send_file(filepath, as_attachment=True)
+        return send_file(os.path.abspath(filepath), as_attachment=True)
     except Exception as e:
         # Exposing error details (A05: Security Misconfiguration)
         return jsonify({'error': str(e)}), 404
