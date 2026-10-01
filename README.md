@@ -43,4 +43,7 @@ The Jenkins pipeline includes:
 ## Author:
 
 **Ernesto De Felice**
+
+© 2026 Ernesto De Felice. All rights reserved.
+
 Project for System Security exam - DevSecOps demonstration
