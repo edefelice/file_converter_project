@@ -132,6 +132,7 @@ Project developed for the **System Security** exam.
 ### 👤 Author
 
 **Ernesto De Felice**
+
 © 2026 Ernesto De Felice. All rights reserved.
 
 ### 📄 License
